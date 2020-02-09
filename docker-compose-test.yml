@@ -1,0 +1,14 @@
+version: '3.0'
+services:
+  rabbitmq:
+  chronicleconsumer:
+  rabbitmqconsumer:
+  chronicle:
+    build: ./chronicle
+    image: chronicle
+    volumes:
+      - $HOME/.chronicle:/opt/data
+    environment:
+      - DATA_DIR=./data
+      - CONFIG_DIR=./config
+  

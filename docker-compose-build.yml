@@ -1,0 +1,11 @@
+version: '3.0'
+services:
+  chronicle-receiver:
+    build: ./chronicle-receiver
+    image: chronicle
+    volumes:
+      - $HOME/.chronicle:/opt/data
+      - ./chronicle-receiver/config:/opt/config
+    environment:
+      - DATA_DIR=./data
+      - CONFIG_DIR=./config

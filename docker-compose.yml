@@ -1,0 +1,9 @@
+version: '3.0'
+services:
+  chronicle:
+    image: eostribe/chronicle
+    volumes:
+      - $HOME/.chronicle:/opt/data
+    environment:
+      - DATA_DIR=./data
+      - CONFIG_DIR=./config
