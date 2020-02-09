@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
@@ -18,9 +19,9 @@ var upgrader = websocket.Upgrader{
 var latestBlock int32 = 0
 
 func main() {
-	fmt.Println("Starting Chronicle Consumer (port: 8080)...")
+	fmt.Println("Chronicle consumer is listening...")
 	setupRoutes()
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8800", nil))
 }
 
 func setupRoutes() {
@@ -60,7 +61,7 @@ func reader(conn *websocket.Conn) {
 		fmt.Println(string(p))
 
 		latestBlock += 1
-		if err := conn.WriteMessage(messageType, []byte(fmt.Sprintf("%d", latestBlock)) ); err != nil {
+		if err := conn.WriteMessage(messageType, []byte(fmt.Sprintf("%d", latestBlock))); err != nil {
 			log.Println(err)
 			return
 		}

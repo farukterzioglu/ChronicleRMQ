@@ -1,14 +1,38 @@
 version: '3.0'
 services:
   rabbitmq:
-  chronicleconsumer:
-  rabbitmqconsumer:
-  chronicle:
-    build: ./chronicle
-    image: chronicle
-    volumes:
-      - $HOME/.chronicle:/opt/data
+    image: rabbitmq:3-management
+    hostname: rabbitmq
     environment:
-      - DATA_DIR=./data
-      - CONFIG_DIR=./config
+      "RABBITMQ_DEFAULT_PASS": "guest"
+      "RABBITMQ_DEFAULT_USER": "guest"
+      "RABBITMQ_DEFAULT_VHOST": "/"
+    ports:
+      - 4369:4369
+      - 5671:5671
+      - 5672:5672
+      - 15672:15672
+  chronicle-consumer:
+    build: ./chronicle-consumer
+    image: chronicle-consumer
+    container_name: chronicle-consumer
+    ports:
+      - 8800:8800
+    networks: 
+      - chronicle
+    # depends_on: [rabbitmq]
+
+networks:
+  chronicle:
+      external: true
+  # rabbitmq-consumer:
+  #   build: ./rabbitmq-consumer
+  # chronicle:
+  #   build: ./chronicle-receiver
+  #   image: chronicle-receiver
+  #   volumes:
+  #   - $HOME/.chronicle:/opt/data
+  # environment:
+  #   - DATA_DIR=./data
+  #   - CONFIG_DIR=./config
   
