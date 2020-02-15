@@ -18,13 +18,7 @@ services:
     container_name: chronicle-consumer
     ports:
       - 8800:8800
-    networks: 
-      - chronicle
-    # depends_on: [rabbitmq]
-
-networks:
-  chronicle:
-      external: true
+    depends_on: [rabbitmq]
   # rabbitmq-consumer:
   #   build: ./rabbitmq-consumer
   # chronicle:

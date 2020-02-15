@@ -1,0 +1,85 @@
+{
+   "data" : {
+      "block_id" : "063a04ddd29ca2deebda53e2bfeefb6087aee60a3f0f15ee4ac95da1a1a6fe9c",
+      "block_num" : "104465629",
+      "block_timestamp" : "2020-02-10T16:58:50.500",
+      "last_irreversible" : "104465300"
+   },
+   "msgtype" : "BLOCK_COMPLETED"
+}
+
+
+{
+    {
+        {
+        ....
+        [
+            {
+               "account_ram_deltas" : [],
+               "act" : {
+                  "account" : "eidosonecoin",
+                  "authorization" : [
+                     {
+                        "actor" : "eidosonecoin",
+                        "permission" : "active"
+                     }
+                  ],
+                  "data" : {
+                     "from" : "eidosonecoin",
+                     "memo" : "Airdrop EIDOS",
+                     "quantity" : "0.0365 EIDOS",
+                     "to" : "nlcinrgpzjpq"
+                  },
+                  "name" : "transfer"
+               },
+               "action_ordinal" : "720",
+               "console" : "",
+               "context_free" : "false",
+               "creator_action_ordinal" : "717",
+               "elapsed" : "2",
+               "error_code" : null,
+               "except" : "",
+               "receipt" : {
+                  "abi_sequence" : "1",
+                  "act_digest" : "519f279f520abf0035af25744806afa900552a361dae7f44df166ffb4d30ec31",
+                  "auth_sequence" : [
+                     {
+                        "account" : "eidosonecoin",
+                        "sequence" : "23447835356"
+                     }
+                  ],
+                  "code_sequence" : "1",
+                  "global_sequence" : "49503456408",
+                  "receiver" : "nlcinrgpzjpq",
+                  "recv_sequence" : "207779534"
+               },
+               "receiver" : "nlcinrgpzjpq"
+            }
+         ],
+         "cpu_usage_us" : "14357",
+         "elapsed" : "28437",
+         "error_code" : null,
+         "except" : "",
+         "failed_dtrx_trace" : [],
+         "id" : "596feb7f17a85487876c1fe8aa090187c935f2c7494fe884f7b1c7cff85bfd75",
+         "net_usage" : "6096",
+         "net_usage_words" : "762",
+         "partial" : {
+            "context_free_data" : [],
+            "delay_sec" : "0",
+            "expiration" : "2020-02-10T16:58:52.000",
+            "max_cpu_usage_ms" : "0",
+            "max_net_usage_words" : "0",
+            "ref_block_num" : "780",
+            "ref_block_prefix" : "3763622094",
+            "signatures" : [
+               "SIG_K1_KaJZagqeLhLkt3LxrkSKJtpEKTtMmhphTeLfzPSVPTiAGyzSsb4LTJzChMfRznMrnENJQ2DkyFFnYXsFDnH2pcH6gqAHHb"
+            ],
+            "transaction_extensions" : []
+         },
+         "scheduled" : "false",
+         "status" : "executed"
+        }
+    },
+   "msgtype" : "TX_TRACE"
+}
