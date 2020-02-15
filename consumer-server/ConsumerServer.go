@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var typemap = map[int16]string{
+var typeMap = map[int16]string{
 	1001: "fork",
 	1002: "block",
 	1003: "tx",
@@ -29,7 +29,7 @@ const (
 	closeGracePeriod = 2 * time.Second
 )
 
-type ConsumerServerOptions struct {
+type Options struct {
 	AckEvery    int8
 	Port        string
 	Host        string
@@ -53,7 +53,7 @@ type ConsumerServer struct {
 	chronicleConnection *websocket.Conn
 }
 
-var consumerService IConsumerServer = ConsumerServer{}
+var _ IConsumerServer = ConsumerServer{}
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -63,7 +63,7 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func NewConsumerServer(opts ConsumerServerOptions) ConsumerServer {
+func NewConsumerServer(opts Options) ConsumerServer {
 	consumerServer := ConsumerServer{
 		wsPort:           opts.Port,
 		ackEvery:         opts.AckEvery,
