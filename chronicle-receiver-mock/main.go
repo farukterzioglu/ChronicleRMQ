@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
@@ -41,22 +40,22 @@ func main() {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
-	content, err := ioutil.ReadFile("sample-response.json")
-	if err != nil {
-		log.Fatal(err)
-	}
-	sampleResponse := string(content)
+	//content, err := ioutil.ReadFile("sample-response.json")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//sampleResponse := string(content)
 
 	for {
 		select {
 		case <-done:
 			return
 		case <-ticker.C:
-			err := c.WriteMessage(websocket.TextMessage, []byte(sampleResponse))
-			if err != nil {
-				log.Println("write:", err)
-				return
-			}
+			//err := c.WriteMessage(websocket.TextMessage, []byte(sampleResponse))
+			//if err != nil {
+			//	log.Println("write:", err)
+			//	return
+			//}
 		case <-interrupt:
 			log.Println("interrupt")
 

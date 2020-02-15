@@ -8,7 +8,9 @@ import (
 	"time"
 )
 
-var typeMap = map[int16]string{
+type MessageType int16
+
+var typeMap = map[MessageType]string{
 	1001: "fork",
 	1002: "block",
 	1003: "tx",
@@ -40,9 +42,11 @@ type Options struct {
 type IConsumerServer interface {
 	Start()
 	Stop()
+	AddHandler(t string, ch chan interface{})
+	RemoveHandler(t string, ch chan interface{})
 }
 
-type ConsumerServer struct {
+type consumerServer struct {
 	confirmedBlock      int64
 	unconfirmedBlock    int64
 	ackEvery            int8
@@ -51,9 +55,10 @@ type ConsumerServer struct {
 	async               bool
 	interactive         bool
 	chronicleConnection *websocket.Conn
+	messageHandlers     map[string][]chan interface{}
 }
 
-var _ IConsumerServer = ConsumerServer{}
+var _ IConsumerServer = &consumerServer{}
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -63,8 +68,8 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-func NewConsumerServer(opts Options) ConsumerServer {
-	consumerServer := ConsumerServer{
+func NewConsumerServer(opts Options) IConsumerServer {
+	consumerServer := consumerServer{
 		wsPort:           opts.Port,
 		ackEvery:         opts.AckEvery,
 		interactive:      opts.Interactive,
@@ -85,10 +90,10 @@ func NewConsumerServer(opts Options) ConsumerServer {
 	// TODO: Handle async mode
 	consumerServer.async = opts.Async
 
-	return consumerServer
+	return &consumerServer
 }
 
-func (s ConsumerServer) Start() {
+func (s consumerServer) Start() {
 	fmt.Printf("Starting Chronicle consumer on %s:%s\n", s.wsHost, s.wsPort)
 	fmt.Printf("Acknowledging every %d blocks\n", s.ackEvery)
 
@@ -98,7 +103,7 @@ func (s ConsumerServer) Start() {
 
 var kConsumerServerClientConnected = false
 
-func (s ConsumerServer) wsEndpoint(w http.ResponseWriter, r *http.Request) {
+func (s *consumerServer) wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	// upgrade this connection to a WebSocket
 	// connection
 	socket, err := upgrader.Upgrade(w, r, nil)
@@ -118,12 +123,12 @@ func (s ConsumerServer) wsEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	kConsumerServerClientConnected = true
 	s.chronicleConnection = socket
-	// TODO: Emit connected message
+	s.emit("connected", struct{ remoteAddress interface{} }{remoteAddress: socket.RemoteAddr()})
 
 	socket.SetCloseHandler(func(code int, text string) error {
 		fmt.Println("Chronicle connection is closed from remote")
 		kConsumerServerClientConnected = false
-		// TODO: Emit closed message
+		s.emit("disconnected", struct{ remoteAddress interface{} }{remoteAddress: socket.RemoteAddr()})
 
 		var message []byte
 		if code != websocket.CloseNoStatusReceived {
@@ -162,7 +167,40 @@ func reader(conn *websocket.Conn) {
 	}
 }
 
-func (s ConsumerServer) Stop() {
+func (s *consumerServer) Stop() {
 	kConsumerServerClientConnected = false
 	s.chronicleConnection.Close()
+}
+
+func (s *consumerServer) AddHandler(t string, ch chan interface{}) {
+	if s.messageHandlers == nil {
+		s.messageHandlers = make(map[string][]chan interface{})
+	}
+	if _, ok := s.messageHandlers[t]; ok {
+		s.messageHandlers[t] = append(s.messageHandlers[t], ch)
+	} else {
+		s.messageHandlers[t] = []chan interface{}{ch}
+	}
+}
+
+// RemoveSitter removes an event listener from the Dog struct instance
+func (s *consumerServer) RemoveHandler(t string, ch chan interface{}) {
+	if _, ok := s.messageHandlers[t]; ok {
+		for i := range s.messageHandlers[t] {
+			if s.messageHandlers[t][i] == ch {
+				s.messageHandlers[t] = append(s.messageHandlers[t][:i], s.messageHandlers[t][i+1:]...)
+				break
+			}
+		}
+	}
+}
+
+func (s *consumerServer) emit(t string, response interface{}) {
+	if _, ok := s.messageHandlers[t]; ok {
+		for _, handler := range s.messageHandlers[t] {
+			go func(handler chan interface{}) {
+				handler <- response
+			}(handler)
+		}
+	}
 }

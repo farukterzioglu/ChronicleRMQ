@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="go build chronicle-consumer-rmq" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="ChronicleRMQ" />
+    <working_directory value="$PROJECT_DIR$" />
+    <go_parameters value="-i" />
+    <kind value="DIRECTORY" />
+    <directory value="$PROJECT_DIR$/chronicle-consumer-rmq" />
+    <output_directory value="$PROJECT_DIR$/chronicle-consumer-rmq" />
+    <method v="2" />
+  </configuration>
+</component>

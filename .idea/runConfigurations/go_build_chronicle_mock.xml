@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="go build chronicle-mock" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="ChronicleRMQ" />
+    <working_directory value="$PROJECT_DIR$" />
+    <go_parameters value="-i" />
+    <kind value="DIRECTORY" />
+    <directory value="$PROJECT_DIR$/chronicle-receiver-mock" />
+    <output_directory value="$PROJECT_DIR$/chronicle-receiver-mock" />
+    <method v="2" />
+  </configuration>
+</component>
