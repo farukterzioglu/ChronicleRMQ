@@ -9,6 +9,14 @@ import (
 	"time"
 )
 
+type EventType string
+
+const (
+	BLOCK        EventType = "block"
+	CONNECTED    EventType = "connected"
+	DISCONNECTED EventType = "disconnected"
+)
+
 type MessageType int16
 
 var typeMap = map[MessageType]string{
@@ -43,7 +51,7 @@ type Options struct {
 type IConsumerServer interface {
 	Start()
 	Stop()
-	AddHandler(t string, ch chan interface{})
+	AddHandler(t string) chan interface{}
 	RemoveHandler(t string, ch chan interface{})
 }
 
@@ -185,7 +193,8 @@ func (s *consumerServer) Stop() {
 	// TODO: Close handler channels
 }
 
-func (s *consumerServer) AddHandler(t string, ch chan interface{}) {
+func (s *consumerServer) AddHandler(t string) chan interface{} {
+	ch := make(chan interface{})
 	if s.messageHandlers == nil {
 		s.messageHandlers = make(map[string][]chan interface{})
 	}
@@ -194,6 +203,7 @@ func (s *consumerServer) AddHandler(t string, ch chan interface{}) {
 	} else {
 		s.messageHandlers[t] = []chan interface{}{ch}
 	}
+	return ch
 }
 
 // RemoveSitter removes an event listener from the Dog struct instance

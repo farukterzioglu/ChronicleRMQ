@@ -17,12 +17,10 @@ func main() {
 		Interactive: false,
 	})
 
-	connectedChn := make(chan interface{})
-	disconnectedChn := make(chan interface{})
-	blockChn := make(chan interface{})
-	server.AddHandler("connected", connectedChn)
-	server.AddHandler("disconnected", disconnectedChn)
-	server.AddHandler("block", blockChn)
+	connectedChn := server.AddHandler("connected")
+	disconnectedChn := server.AddHandler("disconnected")
+	blockChn := server.AddHandler("block")
+	blockLoggerChn := server.AddHandler("block")
 
 	go func() {
 		for {
@@ -33,7 +31,9 @@ func main() {
 			case <-disconnectedChn:
 				// TODO: Process event
 				log.Printf("Chronicle connection is closed from remote.")
-			case p := <-blockChn:
+			case block := <-blockChn:
+				log.Printf("Processing block %s...", block.([]byte))
+			case p := <-blockLoggerChn:
 				log.Printf("Got new block %s...", p.([]byte))
 			}
 		}
