@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/farukterzioglu/ChronicleRMQ/consumerserver"
+	"log"
 )
 
 func main() {
@@ -16,18 +17,25 @@ func main() {
 		Interactive: false,
 	})
 
-	connChn := make(chan interface{})
-	server.AddHandler("connected", connChn)
+	connectedChn := make(chan interface{})
+	disconnectedChn := make(chan interface{})
+	blockChn := make(chan interface{})
+	server.AddHandler("connected", connectedChn)
+	server.AddHandler("disconnected", disconnectedChn)
+	server.AddHandler("block", blockChn)
 
 	go func() {
-		select {
-		case evt := <-connChn:
-			if evt == nil {
-				return
+		for {
+			select {
+			case <-connectedChn:
+				// TODO: Process event
+				log.Printf("Connection established with Chronicle...")
+			case <-disconnectedChn:
+				// TODO: Process event
+				log.Printf("Chronicle connection is closed from remote.")
+			case p := <-blockChn:
+				log.Printf("Got new block %s...", p.([]byte))
 			}
-
-			// TODO: Process event
-			fmt.Println("Connected...")
 		}
 	}()
 

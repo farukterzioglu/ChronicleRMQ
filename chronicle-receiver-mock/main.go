@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -46,16 +47,21 @@ func main() {
 	//}
 	//sampleResponse := string(content)
 
+	var block = 0
 	for {
 		select {
 		case <-done:
 			return
 		case <-ticker.C:
+			block += 1
+			log.Printf("send: %d", block)
+			err := c.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%d", block)))
+			// TODO: Sent mock data
 			//err := c.WriteMessage(websocket.TextMessage, []byte(sampleResponse))
-			//if err != nil {
-			//	log.Println("write:", err)
-			//	return
-			//}
+			if err != nil {
+				log.Println("write:", err)
+				return
+			}
 		case <-interrupt:
 			log.Println("interrupt")
 

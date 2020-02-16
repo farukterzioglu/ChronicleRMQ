@@ -1,6 +1,7 @@
 package consumerserver
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
@@ -104,8 +105,8 @@ func (s consumerServer) Start() {
 var kConsumerServerClientConnected = false
 
 func (s *consumerServer) wsEndpoint(w http.ResponseWriter, r *http.Request) {
-	// upgrade this connection to a WebSocket
-	// connection
+	// upgrade this connection to a WebSocket connection
+	// TODO : remove default websocket logs
 	socket, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
@@ -126,7 +127,6 @@ func (s *consumerServer) wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	s.emit("connected", struct{ remoteAddress interface{} }{remoteAddress: socket.RemoteAddr()})
 
 	socket.SetCloseHandler(func(code int, text string) error {
-		fmt.Println("Chronicle connection is closed from remote")
 		kConsumerServerClientConnected = false
 		s.emit("disconnected", struct{ remoteAddress interface{} }{remoteAddress: socket.RemoteAddr()})
 
@@ -138,38 +138,51 @@ func (s *consumerServer) wsEndpoint(w http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 
-	reader(socket)
+	s.startReader(socket)
 }
 
 var latestBlock int32 = 0
 
-func reader(conn *websocket.Conn) {
+func (s *consumerServer) startReader(conn *websocket.Conn) {
 	for {
 		// read in a message
-		messageType, p, err := conn.ReadMessage()
+		_, p, err := conn.ReadMessage()
 		if err != nil {
 			log.Println(err)
 			return
 		}
 
-		// TODO: Get & check message type
-
-		// TODO: Emit message
-		fmt.Println(string(p))
-
-		// TODO: Ack block
-
-		latestBlock += 1
-		if err := conn.WriteMessage(messageType, []byte(fmt.Sprintf("%d", latestBlock))); err != nil {
-			log.Println(err)
-			return
+		if err := s.processMessage(p, conn); err != nil {
+			fmt.Print(err)
 		}
 	}
+}
+
+func (s *consumerServer) processMessage(p []byte, conn *websocket.Conn) error {
+	// TODO: Get message type
+	var msgType MessageType = 1002
+	eventType, ok := typeMap[msgType]
+	if !ok {
+		return errors.New("Unknown msgType: " + fmt.Sprint(msgType))
+	}
+
+	s.emit(eventType, p)
+
+	// TODO: Ack block
+
+	latestBlock += 1
+	if err := conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%d", latestBlock))); err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }
 
 func (s *consumerServer) Stop() {
 	kConsumerServerClientConnected = false
 	s.chronicleConnection.Close()
+
+	// TODO: Close handler channels
 }
 
 func (s *consumerServer) AddHandler(t string, ch chan interface{}) {
