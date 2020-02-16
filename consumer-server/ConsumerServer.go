@@ -10,6 +10,7 @@ import (
 )
 
 type EventType string
+type MessageType int16
 
 const (
 	BLOCK        EventType = "block"
@@ -17,11 +18,9 @@ const (
 	DISCONNECTED EventType = "disconnected"
 )
 
-type MessageType int16
-
 var typeMap = map[MessageType]EventType{
 	1001: "fork",
-	1002: "block",
+	1002: BLOCK,
 	1003: "tx",
 	1004: "abi",
 	1006: "abiError",
