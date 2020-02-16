@@ -19,7 +19,7 @@ const (
 
 type MessageType int16
 
-var typeMap = map[MessageType]string{
+var typeMap = map[MessageType]EventType{
 	1001: "fork",
 	1002: "block",
 	1003: "tx",
@@ -51,8 +51,8 @@ type Options struct {
 type IConsumerServer interface {
 	Start()
 	Stop()
-	AddHandler(t string) chan interface{}
-	RemoveHandler(t string, ch chan interface{})
+	AddHandler(t EventType) chan interface{}
+	RemoveHandler(t EventType, ch chan interface{})
 }
 
 type consumerServer struct {
@@ -64,7 +64,7 @@ type consumerServer struct {
 	async               bool
 	interactive         bool
 	chronicleConnection *websocket.Conn
-	messageHandlers     map[string][]chan interface{}
+	messageHandlers     map[EventType][]chan interface{}
 }
 
 var _ IConsumerServer = &consumerServer{}
@@ -132,11 +132,11 @@ func (s *consumerServer) wsEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	kConsumerServerClientConnected = true
 	s.chronicleConnection = socket
-	s.emit("connected", struct{ remoteAddress interface{} }{remoteAddress: socket.RemoteAddr()})
+	s.emit(CONNECTED, struct{ remoteAddress interface{} }{remoteAddress: socket.RemoteAddr()})
 
 	socket.SetCloseHandler(func(code int, text string) error {
 		kConsumerServerClientConnected = false
-		s.emit("disconnected", struct{ remoteAddress interface{} }{remoteAddress: socket.RemoteAddr()})
+		s.emit(DISCONNECTED, struct{ remoteAddress interface{} }{remoteAddress: socket.RemoteAddr()})
 
 		var message []byte
 		if code != websocket.CloseNoStatusReceived {
@@ -193,10 +193,10 @@ func (s *consumerServer) Stop() {
 	// TODO: Close handler channels
 }
 
-func (s *consumerServer) AddHandler(t string) chan interface{} {
+func (s *consumerServer) AddHandler(t EventType) chan interface{} {
 	ch := make(chan interface{})
 	if s.messageHandlers == nil {
-		s.messageHandlers = make(map[string][]chan interface{})
+		s.messageHandlers = make(map[EventType][]chan interface{})
 	}
 	if _, ok := s.messageHandlers[t]; ok {
 		s.messageHandlers[t] = append(s.messageHandlers[t], ch)
@@ -207,7 +207,7 @@ func (s *consumerServer) AddHandler(t string) chan interface{} {
 }
 
 // RemoveSitter removes an event listener from the Dog struct instance
-func (s *consumerServer) RemoveHandler(t string, ch chan interface{}) {
+func (s *consumerServer) RemoveHandler(t EventType, ch chan interface{}) {
 	if _, ok := s.messageHandlers[t]; ok {
 		for i := range s.messageHandlers[t] {
 			if s.messageHandlers[t][i] == ch {
@@ -218,7 +218,7 @@ func (s *consumerServer) RemoveHandler(t string, ch chan interface{}) {
 	}
 }
 
-func (s *consumerServer) emit(t string, response interface{}) {
+func (s *consumerServer) emit(t EventType, response interface{}) {
 	if _, ok := s.messageHandlers[t]; ok {
 		for _, handler := range s.messageHandlers[t] {
 			go func(handler chan interface{}) {

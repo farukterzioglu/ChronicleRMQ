@@ -17,10 +17,10 @@ func main() {
 		Interactive: false,
 	})
 
-	connectedChn := server.AddHandler("connected")
-	disconnectedChn := server.AddHandler("disconnected")
-	blockChn := server.AddHandler("block")
-	blockLoggerChn := server.AddHandler("block")
+	connectedChn := server.AddHandler(consumerserver.CONNECTED)
+	disconnectedChn := server.AddHandler(consumerserver.DISCONNECTED)
+	blockChn := server.AddHandler(consumerserver.BLOCK)
+	blockLoggerChn := server.AddHandler(consumerserver.BLOCK)
 
 	go func() {
 		for {
