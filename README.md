@@ -19,9 +19,9 @@ daemon [developed by Block One](https://developers.eos.io/).
 (More detailed docs and samples is on the way...)  
 
 #### With docker-compose  
-`docker-compose -f docker-compose-test.yml run chronicle-consumer`  
-`docker run -p 8800:8800 chronicle-consumer`  
-
+`docker-compose -f docker-compose-test.yml run chronicle-consumer`
+`docker build -t chronicle-consumer-rmq -f chronicle-consumer-rmq/Dockerfile .`
+`docker run -p 8800:8800 chronicle-consumer-rmq`  
 
 Based on;  
 https://github.com/EOSChronicleProject/eos-chronicle  
