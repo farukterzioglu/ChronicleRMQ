@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
@@ -41,11 +41,11 @@ func main() {
 	ticker := time.NewTicker(time.Second)
 	defer ticker.Stop()
 
-	//content, err := ioutil.ReadFile("sample-response.json")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//sampleResponse := string(content)
+	content, err := ioutil.ReadFile("sample-response.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+	sampleResponse := string(content)
 
 	var block = 0
 	for {
@@ -55,9 +55,9 @@ func main() {
 		case <-ticker.C:
 			block += 1
 			log.Printf("send: %d", block)
-			err := c.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%d", block)))
+			//err := c.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%d", block)))
 			// TODO: Sent mock data
-			//err := c.WriteMessage(websocket.TextMessage, []byte(sampleResponse))
+			err := c.WriteMessage(websocket.TextMessage, []byte(sampleResponse))
 			if err != nil {
 				log.Println("write:", err)
 				return

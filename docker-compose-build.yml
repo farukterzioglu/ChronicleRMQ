@@ -1,9 +1,9 @@
 version: '3.0'
 services:
-  chronicle-consumer:
-    build: ./chronicle-consumer
-    image: chronicle-consumer
-    container_name: chronicle-consumer
+  chronicle-consumer-rmq:
+    build: ./chronicle-consumer-rmq
+    image: chronicle-consumer-rmq
+    container_name: chronicle-consumer-rmq
   chronicle-receiver:
     build: ./chronicle-receiver
     image: chronicle

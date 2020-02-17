@@ -16,12 +16,13 @@ const (
 	BLOCK        EventType = "block"
 	CONNECTED    EventType = "connected"
 	DISCONNECTED EventType = "disconnected"
+	TX           EventType = "tx"
 )
 
 var typeMap = map[MessageType]EventType{
 	1001: "fork",
 	1002: BLOCK,
-	1003: "tx",
+	1003: TX,
 	1004: "abi",
 	1006: "abiError",
 	1005: "abiRemoved",
@@ -166,6 +167,9 @@ func (s *consumerServer) startReader(conn *websocket.Conn) {
 }
 
 func (s *consumerServer) processMessage(p []byte, conn *websocket.Conn) error {
+	fmt.Printf("Data: %s\n", p)
+	return nil
+
 	// TODO: Get message type
 	var msgType MessageType = 1002
 	eventType, ok := typeMap[msgType]
@@ -176,6 +180,16 @@ func (s *consumerServer) processMessage(p []byte, conn *websocket.Conn) error {
 	s.emit(eventType, p)
 
 	// TODO: Ack block
+	//if( $msgtype == 1001 or $msgtype == 1010 )
+	//{
+	//$last_block = $data->{'block_num'};
+	//}
+
+	//if( (($msgtype == 1010 and $last_block - $last_ack >= $ack) or
+	//$msgtype == 1009) )
+	//{
+	//send_ack($conn);
+	//}
 
 	latestBlock += 1
 	if err := conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%d", latestBlock))); err != nil {

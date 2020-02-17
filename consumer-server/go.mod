@@ -1,4 +1,4 @@
-module github.com/farukterzioglu/ChronicleRMQ/consumerserver
+module github.com/farukterzioglu/ChronicleRMQ/consumer-server
 
 go 1.13
 

@@ -35,6 +35,8 @@ func main() {
 				log.Printf("Processing block %s...", block.([]byte))
 			case p := <-blockLoggerChn:
 				log.Printf("Got new block %s...", p.([]byte))
+			case tx := <-server.AddHandler(consumerserver.TX):
+				log.Printf("Got new tx %s...", tx.([]byte))
 			}
 		}
 	}()
